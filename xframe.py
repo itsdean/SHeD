@@ -5,7 +5,7 @@ acceptable_values = [
 
 def check(headers):
     if "X-Frame-Options" not in headers:
-        print("[x] Has the X-Frame-Options header: no\n")
+        print("[!] Has the X-Frame-Options header: no\n")
         return False
 
     print("[✔] Has the X-Frame-Options header: yes")
