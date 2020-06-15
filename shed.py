@@ -34,7 +34,7 @@ def request(
 
     try:
         if method == "GET":
-            response = requests.head(
+            response = requests.get(
                 url,
                 headers = converted_headers
             )
@@ -82,8 +82,6 @@ if __name__ == "__main__":
         print("\033[1m\033[4m" + "URL: {}".format(url) + "\033[0m")
         print("[-] Sending request")
     response, err = request(url, headers=headers)
-
-    # print(response.status_code)
 
     if not err:
         if not json:
