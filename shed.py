@@ -15,6 +15,8 @@ import xss
 
 from pprint import pprint
 
+from parser import Parser
+
 
 def request(
         url,
@@ -41,34 +43,11 @@ def request(
     except requests.exceptions.ConnectionError as err:
         return None, err
     except Exception as err:
-        return None, err    
-
-
-def check_headers(response_headers):
-
-    # for header in response_headers:
-
-    #     pprint(header + ": " + response_headers.get(header))
-
-    hsts_result = hsts.check(response_headers)
-    xframe_result = xframe.check(response_headers)
-    xss_result = xss.check(response_headers)
-
-    curious.check(response_headers)
-
-
-def check_cookies(response_cookies):
-    cookies.check(response_cookies)
-
-
-def check(response):
-    check_headers(response.headers)
-    check_cookies(response.cookies)
+        return None, err
 
 
 if __name__ == "__main__":
-    print()
-    print("SHeD.py\n---\n")
+    json = False
 
     parser = argparse.ArgumentParser()
 
@@ -86,24 +65,38 @@ if __name__ == "__main__":
         help="Headers to add to the request"
     )
 
+    parser.add_argument(
+        "--json",
+        action="store_true",
+        help="Return output in JSON format to stdout"
+    )
+
     args = parser.parse_args()
     url = args.url
     headers = args.header
+    json = args.json
 
-    print("[!] URL: {}".format(url))
-    print("[-] > Sending request")
+    if not json:
+        print()
+        print("\033[1m\033[4mSHeD.py\033[0m - \033[1mgithub.com/itsdean\033[0m\n")
+        print("\033[1m\033[4m" + "URL: {}".format(url) + "\033[0m")
+        print("[-] Sending request")
     response, err = request(url, headers=headers)
 
+    # print(response.status_code)
+
     if not err:
-        print("[✔] > Request successful\n")
-        check(response)
-        # report()
+        if not json:
+            print("[✔] > Request successful\n")
+        parser = Parser(response)
+        results = parser.check()
+        parser.output(json)
     else:
         if "Connection refused" in str(err):
             print("[request] shed can't hit the endpoint.")
         print("[main] exception thrown, error below:\n")
-        print(str(err) + "\n")
+        print(str(err))
         # raise err
-    
-    # print("[main] exiting\n---\n")
-    print("---\nAll done!\n---\n")
+
+    if not json:
+        print("\n---\nAll done!\n---\n")

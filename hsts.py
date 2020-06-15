@@ -3,34 +3,34 @@ import re
 hsts_pattern = r"max-age=(?P<age>\d+)(?:;\W(?:(?P<subdomains>includeSubDomains)|(?P<preload>preload))+)*"
 
 def check(headers):
-    if "Strict-Transport-Security" not in headers:
-        print("[x] Has the Strict-Transport-Security header: no\n")
-        return False
 
-    print("[✔] Has the Strict-Transport-Security header: yes")
+    payload = {
+        "present": False,
+        "age": 0,
+        "days": 0,
+        "preload": False,
+        "subdomains": False
+    }
 
-    hsts_value = headers.get("Strict-Transport-Security")
-    hsts_pattern_object = re.compile(hsts_pattern)
+    if "Strict-Transport-Security" in headers:
+        payload["present"] = True
 
-    matches = hsts_pattern_object.search(hsts_value)
-    matches_dict = matches.groupdict()
+        hsts_value = headers.get("Strict-Transport-Security")
+        hsts_pattern_object = re.compile(hsts_pattern)
 
-    seconds = matches_dict["age"]
-    days = int(int(seconds) / 60 / 60 / 24)
-    print("[-] > Age: {} seconds ({} days)".format(seconds, days))
+        matches = hsts_pattern_object.search(hsts_value)
+        matches_dict = matches.groupdict()
 
-    if matches_dict["subdomains"]:
-        print("[-] > includeSubDomains: yes")
+        seconds = int(matches_dict["age"])
+        payload["age"] = seconds
+        days = int(int(seconds) / 60 / 60 / 24)
+        payload["days"] = days
 
-    if matches_dict["preload"]:
-        print("[-] > Preload: yes")
+        if matches_dict["subdomains"]:
+            payload["subdomains"] = True
 
+        if matches_dict["preload"]:
+            payload["preload"] = True
 
-    # if xframe_value.lower() in acceptable_values:
-    #     print("[✔] Value is acceptable: {}".format(xframe_value))
-    # else:
-    #     print("[?] Unknown X-Frame-Options value: {}".format(xframe_value))
-    #     print("[!] > Browsers will not honour this value")
-
-    print()
-    return True
+    # print()
+    return payload

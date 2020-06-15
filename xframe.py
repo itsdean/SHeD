@@ -4,18 +4,20 @@ acceptable_values = [
 ]
 
 def check(headers):
-    if "X-Frame-Options" not in headers:
-        print("[!] Has the X-Frame-Options header: no\n")
-        return False
 
-    print("[✔] Has the X-Frame-Options header: yes")
+    payload = {
+        "present": False,
+        "value": None,
+        "acceptable": False
+    }
 
-    xframe_value = headers.get("X-Frame-Options")
-    if xframe_value.lower() in acceptable_values:
-        print("[✔] > Value is acceptable: {}".format(xframe_value))
-    else:
-        print("[?] > Unknown X-Frame-Options value: {}".format(xframe_value))
-        print("[!] > Browsers will not honour this value")
+    if "X-Frame-Options" in headers:
+        payload["present"] = True
 
-    print()
-    return True
+        xframe_value = headers.get("X-Frame-Options")
+        payload["value"] = xframe_value
+
+        if xframe_value.lower() in acceptable_values:
+            payload["acceptable"] = True
+
+    return payload
