@@ -5,6 +5,7 @@
 # - contact: hey@dean.dev
 
 import argparse
+import datetime
 import requests
 
 import cookies
@@ -21,17 +22,23 @@ from parser import Parser
 def request(
         url,
         # port=80,
-        headers=[],
+        headers,
         method="GET"
     ):
 
     converted_headers = {}
 
     # convert the header arguments from x=y to {x: "y"}
-    for header in headers:
-        options = header.split("=", 1)
-        converted_headers[options[0]] = options[1]
-
+    if headers is not None:
+        for header in headers:
+            if ";" in header:
+                multi_header = header.split(";")
+                for header in multi_header:
+                    options = header.split("=", 1)
+                    converted_headers[options[0].strip()] = options[1].strip()
+            else:
+                options = header.split("=", 1)
+                converted_headers[options[0].strip()] = options[1].strip()
     try:
         if method == "GET":
             response = requests.get(
@@ -47,7 +54,8 @@ def request(
 
 
 if __name__ == "__main__":
-    json = False
+    report = json = False
+    start_time = datetime.datetime.now().isoformat()
 
     parser = argparse.ArgumentParser()
 
@@ -60,7 +68,6 @@ if __name__ == "__main__":
 
     parser.add_argument(
         "--header",
-        default="",
         action="append",
         help="Headers to add to the request"
     )
@@ -71,10 +78,18 @@ if __name__ == "__main__":
         help="Return output in JSON format to stdout"
     )
 
+    parser.add_argument(
+        "--output",
+        help="File to save output to (in JSON format)"
+    )
+
     args = parser.parse_args()
     url = args.url
     headers = args.header
     json = args.json
+    if args.output:
+        output_filename = args.output
+        report = True
 
     if not json:
         print()
@@ -86,9 +101,11 @@ if __name__ == "__main__":
     if not err:
         if not json:
             print("[✔] > Request successful\n")
-        parser = Parser(response)
+        parser = Parser(response, start_time)
         results = parser.check()
         parser.output(json)
+        if report:
+            parser.report(output_filename)
     else:
         if "Connection refused" in str(err):
             print("[request] shed can't hit the endpoint.")

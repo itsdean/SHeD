@@ -4,13 +4,30 @@ import hsts
 import xframe
 import xss
 
+import json
+
 
 class Parser:
 
 
-    def __init__(self, response):
+    def __init__(self, response, start_time):
         self.response = response
-        self.results = {}
+        self.url = response.url
+
+        self.results = {
+            "shed": {
+                "timestamp": str(start_time)
+            },
+            "request": {
+                "url": self.url,
+                "method": self.response.request.method,
+                "headers": dict(self.response.request.headers)
+            },
+            "response": {
+                "date": dict(self.response.headers)["Date".lower()]
+                # "headers": dict(self.response.headers)
+            }
+        }
 
 
     def check_headers(self, headers):
@@ -42,9 +59,14 @@ class Parser:
         self.check_cookies(self.response.cookies)
 
 
-    def output(self, json=False):
-        if json:
-            print(self.results)
+    def report(self, filename):
+        with open(filename, "w") as report_file:
+            json.dump(self.results, report_file)
+
+
+    def output(self, output_json=False):
+        if output_json:
+            print(json.dumps(self.results))
         else:
             # hsts
             # print("\u0332".join("HTTP Strict Transport Security"))
