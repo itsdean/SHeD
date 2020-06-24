@@ -6,28 +6,35 @@ Security Header and Cookie Detector.
 
 
 ```
-$ python3 shed.py -u https://dean.dev
+$ python3 SHeD.py -u https://dean.dev
 
-SHeD.py
----
+SHeD.py - github.com/itsdean
 
-[!] URL: https://dean.dev
-[-] > Sending request
+URL: https://dean.dev
+[-] Sending request
 [✔] > Request successful
 
-[x] Has the Strict-Transport-Security header: no
+HTTP Strict Transport Security
+[x] Strict-Transport-Security header: missing
 
-[!] Has the X-Frame-Options header: no
+X-Frame-Options
+[x] X-Frame-Options header: missing
 
-[!] Has the X-XSS-Protection header: No
+X-XSS-Protection
+[x] X-XSS-Protection header: missing
+[!] Please make your own judgment call separate from this finding - the X-XSS-Protection header is no longer
+actively supported by modern browsers. See https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-XSS-Protection
+for more information.
 
-[?] Found peculiar header: Server=cloudflare
+Curious Headers
+[?] Server: cloudflare
 
-[!] Found cookie: __cfduid
-[-] > Value: d8570039f8e891e7f28c13045654bba161591622381
-[-] > Has the Secure flag: True
-[-] > Has the HttpOnly flag: True
-[-] > Has an explicit SameSite value: SameSite=Lax
+Cookies
+[!] Cookie: __cfduid
+[-] > Value: d986453e86efb5cb4a3536050cd6342381592375675
+[-] > HTTPOnly: true
+[-] > Secure: true
+[-] > SameSite: "Lax"
 
 ---
 All done!
