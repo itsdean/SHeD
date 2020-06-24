@@ -7,14 +7,13 @@
 import argparse
 import datetime
 import requests
+import sys
 
 import cookies
 import curious
 import hsts
 import xframe
 import xss
-
-from pprint import pprint
 
 from parser import Parser
 
@@ -36,9 +35,13 @@ def request(
                 for header in multi_header:
                     options = header.split("=", 1)
                     converted_headers[options[0].strip()] = options[1].strip()
-            else:
+                    print("[-] > Parsed header \"{}\"".format(header))
+            elif "=" in header:
                 options = header.split("=", 1)
                 converted_headers[options[0].strip()] = options[1].strip()
+                print("[-] > Parsed header \"{}\"".format(header))
+            else:
+                print("[x] Unknown header \"{}\" - skipping".format(header))
     try:
         if method == "GET":
             response = requests.get(
@@ -54,7 +57,7 @@ def request(
 
 
 if __name__ == "__main__":
-    report = json = False
+    report = pretty = json =  False
     start_time = datetime.datetime.now().isoformat()
 
     parser = argparse.ArgumentParser()
@@ -69,6 +72,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--header",
         action="append",
+        default=[],
         help="Headers to add to the request"
     )
 
@@ -83,6 +87,13 @@ if __name__ == "__main__":
         help="File to save output to (in JSON format)"
     )
 
+    if "--pretty" in sys.argv:
+        parser.add_argument(
+            "--pretty",
+            action="store_true",
+            help="Prettifies the JSON output"
+        )
+
     args = parser.parse_args()
     url = args.url
     headers = args.header
@@ -90,6 +101,8 @@ if __name__ == "__main__":
     if args.output:
         output_filename = args.output
         report = True
+    if "--pretty" in sys.argv:
+        pretty = True
 
     if not json:
         print()
@@ -103,7 +116,7 @@ if __name__ == "__main__":
             print("[✔] > Request successful\n")
         parser = Parser(response, start_time)
         results = parser.check()
-        parser.output(json)
+        parser.output(json, pretty)
         if report:
             parser.report(output_filename)
     else:

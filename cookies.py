@@ -1,5 +1,3 @@
-from pprint import pprint
-
 def check(cookies_header):
 
     cookies = []

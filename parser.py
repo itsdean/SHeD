@@ -6,13 +6,14 @@ import xss
 
 import json
 
-
 class Parser:
 
 
     def __init__(self, response, start_time):
         self.response = response
         self.url = response.url
+
+        date = self.response.headers["date"]
 
         self.results = {
             "shed": {
@@ -24,8 +25,7 @@ class Parser:
                 "headers": dict(self.response.request.headers)
             },
             "response": {
-                "date": dict(self.response.headers)["Date".lower()]
-                # "headers": dict(self.response.headers)
+                "date": date
             }
         }
 
@@ -64,9 +64,12 @@ class Parser:
             json.dump(self.results, report_file)
 
 
-    def output(self, output_json=False):
-        if output_json:
-            print(json.dumps(self.results))
+    def output(self, output_as_json, pretty):
+        if output_as_json:
+            if pretty:
+                print(json.dumps(self.results, indent=4))
+            else:
+                print(json.dumps(self.results))
         else:
             # hsts
             # print("\u0332".join("HTTP Strict Transport Security"))
