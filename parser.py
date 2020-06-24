@@ -60,7 +60,7 @@ class Parser:
 
 
     def report(self, filename):
-        with open(filename, "w") as report_file:
+        with open(filename, "w+") as report_file:
             json.dump(self.results, report_file)
 
 
