@@ -27,21 +27,15 @@ def request(
 
     converted_headers = {}
 
-    # convert the header arguments from x=y to {x: "y"}
+    # get headers passed via cli and save them in a dict
     if headers is not None:
-        for header in headers:
-            if ";" in header:
-                multi_header = header.split(";")
-                for header in multi_header:
-                    options = header.split("=", 1)
-                    converted_headers[options[0].strip()] = options[1].strip()
-                    print("[-] > Parsed header \"{}\"".format(header))
-            elif "=" in header:
-                options = header.split("=", 1)
-                converted_headers[options[0].strip()] = options[1].strip()
-                print("[-] > Parsed header \"{}\"".format(header))
-            else:
-                print("[x] Unknown header \"{}\" - skipping".format(header))
+        all_headers = headers.pop()
+        # get each individual header from the command line argument, separated by pipes
+        for header in all_headers.split("|"):
+            # print(header)
+            options = header.split(":", 1)
+            converted_headers[options[0].strip()] = options[1].strip()
+
     try:
         if method == "GET":
             response = requests.get(
