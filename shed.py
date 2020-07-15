@@ -28,7 +28,7 @@ def request(
     converted_headers = {}
 
     # get headers passed via cli and save them in a dict
-    if headers is not None:
+    if headers is not None and len(headers) > 0:
         all_headers = headers.pop()
         # get each individual header from the command line argument, separated by pipes
         for header in all_headers.split("|"):
